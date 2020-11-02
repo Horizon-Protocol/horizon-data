@@ -39,6 +39,7 @@ The below all return a Promise that resolves with the requested results.
 27. `snx.aggregateActiveStakers({ max, timeSeries })` Get the number of active stakers across various time series.
 28. `snx.totalActiveStakers()` Get the current number of active stakers.
 29. `rate.dailyRateChange({ synths })` get the rate change over the past 24 hours for any synth. Can pass in a list to retrieve multiple synths.
+30. `exchanger.exchangeSourceData({ timeSeries, partner })` Get the list of volume from all or specific sources.
 
 ## Supported subscriptions
 
