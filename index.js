@@ -15,7 +15,7 @@ const {
 } = require('./utils');
 
 const graphAPIEndpoints = {
-	snx: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix',
+	hzn: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix',
 	depot: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-depot',
 	exchanges: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-exchanges',
 	rates: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-rates',
@@ -161,7 +161,7 @@ module.exports = {
 			'block',
 			'timestamp',
 		],
-		_mapSynthExchange: ({
+		_mapHassetExchange: ({
 			gasPrice,
 			timestamp,
 			id,
@@ -263,7 +263,7 @@ module.exports = {
 				api: graphAPIEndpoints.exchanges,
 				max,
 				query: {
-					entity: 'synthExchanges',
+					entity: 'hassetExchanges',
 					selection: {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
@@ -279,7 +279,7 @@ module.exports = {
 					properties: module.exports.exchanges._properties,
 				},
 			})
-				.then(results => results.map(module.exports.exchanges._mapSynthExchange))
+				.then(results => results.map(module.exports.exchanges._mapHassetExchange))
 				.catch(err => console.error(err));
 		},
 
@@ -347,7 +347,7 @@ module.exports = {
 			);
 
 			const observable = client.request({
-				query: `subscription { synthExchanges(first: 1, orderBy: timestamp, orderDirection: desc) { ${module.exports.exchanges._properties.join(
+				query: `subscription { hassetExchanges(first: 1, orderBy: timestamp, orderDirection: desc) { ${module.exports.exchanges._properties.join(
 					',',
 				)}  } }`,
 			});
@@ -356,8 +356,8 @@ module.exports = {
 				// return an observable object that transforms the results before yielding them
 				subscribe({ next, error, complete }) {
 					return observable.subscribe({
-						next({ data: { synthExchanges } }) {
-							synthExchanges.map(module.exports.exchanges._mapSynthExchange).forEach(next);
+						next({ data: { hassetExchanges } }) {
+							hassetExchanges.map(module.exports.exchanges._mapHassetExchange).forEach(next);
 						},
 						error,
 						complete,
@@ -366,10 +366,10 @@ module.exports = {
 			};
 		},
 	},
-	synths: {
+	hassets: {
 		issuers({ max = 10 } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'issuers',
@@ -380,10 +380,10 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 		/**
-		 * Get the latest synth transfers
+		 * Get the latest hasset transfers
 		 */
 		transfers({
-			synth = undefined,
+			hasset = undefined,
 			from = undefined,
 			to = undefined,
 			max = 100,
@@ -391,7 +391,7 @@ module.exports = {
 			maxBlock = undefined,
 		} = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'transfers',
@@ -399,8 +399,8 @@ module.exports = {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
 						where: {
-							source: synth ? `\\"${synth}\\"` : undefined,
-							source_not: '\\"SNX\\"',
+							source: hasset ? `\\"${hasset}\\"` : undefined,
+							source_not: '\\"HZN\\"',
 							from: from ? `\\"${from}\\"` : undefined,
 							to: to ? `\\"${to}\\"` : undefined,
 							from_not: `\\"${ZERO_ADDRESS}\\"`, // Ignore Issue events
@@ -427,40 +427,40 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 
-		holders({ max = 100, synth = undefined, address = undefined } = {}) {
+		holders({ max = 100, hasset = undefined, address = undefined } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
-					entity: 'synthHolders',
+					entity: 'hassetHolders',
 					selection: {
 						orderBy: 'balanceOf',
 						orderDirection: 'desc',
 						where: {
-							id: address && synth ? `\\"${address + '-' + synth}\\"` : undefined,
-							synth: synth ? `\\"${synth}\\"` : undefined,
+							id: address && hasset ? `\\"${address + '-' + hasset}\\"` : undefined,
+							hasset: hasset ? `\\"${hasset}\\"` : undefined,
 						},
 					},
 					properties: [
-						'id', // the address of the holder plus the synth
-						'balanceOf', // synth balance in their wallet
-						'synth', // The synth currencyKey
+						'id', // the address of the holder plus the hasset
+						'balanceOf', // hasset balance in their wallet
+						'hasset', // The hasset currencyKey
 					],
 				},
 			})
 				.then(results =>
-					results.map(({ id, balanceOf, synth }) => ({
+					results.map(({ id, balanceOf, hasset }) => ({
 						address: getHashFromId(id),
 						balanceOf: balanceOf ? balanceOf / 1e18 : null,
-						synth,
+						hasset,
 					})),
 				)
 				.catch(err => console.error(err));
 		},
 	},
 	rate: {
-		snxAggregate({ timeSeries = '1d', max = 30 } = {}) {
-			const entityMap = { '1d': 'dailySNXPrices', '15m': 'fifteenMinuteSNXPrices' };
+		hznAggregate({ timeSeries = '1d', max = 30 } = {}) {
+			const entityMap = { '1d': 'dailyHZNPrices', '15m': 'fifteenMinuteHZNPrices' };
 			return pageResults({
 				api: graphAPIEndpoints.rates,
 				max,
@@ -482,29 +482,29 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 		/**
-		 * Get the last max RateUpdate events for the given synth in reverse order
+		 * Get the last max RateUpdate events for the given hasset in reverse order
 		 */
 		updates({
-			synth,
+			hasset,
 			minBlock = undefined,
 			maxBlock = undefined,
 			minTimestamp = undefined,
 			maxTimestamp = undefined,
 			max = 100,
 		} = {}) {
-			let synthSelectionQuery = {};
+			let hassetSelectionQuery = {};
 
-			if (Array.isArray(synth)) {
-				synthSelectionQuery = {
-					synth_in: formatGQLArray(synth),
+			if (Array.isArray(hasset)) {
+				hassetSelectionQuery = {
+					hasset_in: formatGQLArray(hasset),
 				};
-			} else if (synth) {
-				synthSelectionQuery = {
-					synth: formatGQLString(synth),
+			} else if (hasset) {
+				hassetSelectionQuery = {
+					hasset: formatGQLString(hasset),
 				};
 			} else {
-				synthSelectionQuery = {
-					synth_not_in: formatGQLArray(['SNX', 'ETH', 'XDR']),
+				hassetSelectionQuery = {
+					hasset_not_in: formatGQLArray(['HZN', 'ETH', 'XDR']),
 				};
 			}
 
@@ -517,20 +517,20 @@ module.exports = {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
 						where: {
-							...synthSelectionQuery,
+							...hassetSelectionQuery,
 							block_gte: minBlock || undefined,
 							block_lte: maxBlock || undefined,
 							timestamp_gte: roundTimestampTenSeconds(minTimestamp) || undefined,
 							timestamp_lte: roundTimestampTenSeconds(maxTimestamp) || undefined,
 						},
 					},
-					properties: ['id', 'synth', 'rate', 'block', 'timestamp'],
+					properties: ['id', 'hasset', 'rate', 'block', 'timestamp'],
 				},
 			})
 				.then(results =>
-					results.map(({ id, rate, block, timestamp, synth }) => ({
+					results.map(({ id, rate, block, timestamp, hasset }) => ({
 						block: Number(block),
-						synth,
+						hasset,
 						timestamp: Number(timestamp * 1000),
 						date: new Date(timestamp * 1000),
 						hash: getHashFromId(id),
@@ -539,8 +539,8 @@ module.exports = {
 				)
 				.catch(err => console.error(err));
 		},
-		dailyRateChange({ synths = [], max = 100, fromBlock }) {
-			const IGNORE_SYNTHS = ['XDR', 'XDRB', 'nUSD', 'sUSD'];
+		dailyRateChange({ hassets = [], max = 100, fromBlock }) {
+			const IGNORE_HASSETS = ['XDR', 'XDRB', 'nUSD', 'sUSD'];
 			return pageResults({
 				api: graphAPIEndpoints.rates,
 				max,
@@ -557,8 +557,8 @@ module.exports = {
 				.then(latestRates => {
 					const changeValues = latestRates.reduce((acc, curr) => {
 						if (
-							!IGNORE_SYNTHS.includes(curr.id) &&
-							(synths.length === 0 || (synths.length > 0 && synths.includes(curr.id)))
+							!IGNORE_HASSETS.includes(curr.id) &&
+							(hassets.length === 0 || (hassets.length > 0 && hassets.includes(curr.id)))
 						) {
 							acc[curr.id] = {
 								currentRate: curr.rate,
@@ -604,11 +604,11 @@ module.exports = {
 				ws,
 			);
 
-			// Note: we can't use "first" here as some updates come together (the SNX oracle groups together some rates)
+			// Note: we can't use "first" here as some updates come together (the HZN oracle groups together some rates)
 			const observable = client.request({
 				query: `subscription { rateUpdates(where: { timestamp_gt: ${minTimestamp}}, orderBy: timestamp, orderDirection: desc) { ${[
 					'id',
-					'synth',
+					'hasset',
 					'rate',
 					'block',
 					'timestamp',
@@ -629,10 +629,10 @@ module.exports = {
 			};
 		},
 	},
-	snx: {
+	hzn: {
 		issued({ max = 100, account = undefined, minBlock = undefined } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'issueds',
@@ -668,7 +668,7 @@ module.exports = {
 
 		burned({ max = 100, account = undefined, minBlock = undefined } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'burneds',
@@ -704,7 +704,7 @@ module.exports = {
 
 		aggregateActiveStakers({ max = 30 } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'totalDailyActiveStakers',
@@ -719,7 +719,7 @@ module.exports = {
 
 		totalActiveStakers() {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max: 1,
 				query: {
 					entity: 'totalActiveStakers',
@@ -739,10 +739,10 @@ module.exports = {
 			minClaims = undefined,
 		} = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
-					entity: 'snxholders',
+					entity: 'hznholders',
 					selection: {
 						orderBy: 'collateral',
 						orderDirection: 'desc',
@@ -759,8 +759,8 @@ module.exports = {
 						'block', // the block this entity was last updated in
 						'timestamp', // the timestamp when this entity was last updated
 						'collateral', // Synthetix.collateral (all collateral the account has, including escrowed )
-						'balanceOf', // SNX balance in their wallet
-						'transferable', // All non-locked SNX
+						'balanceOf', // HZN balance in their wallet
+						'transferable', // All non-locked HZN
 						'initialDebtOwnership', // Debt data from SynthetixState, used to calculate debtBalance
 						'debtEntryAtIndex', // Debt data from SynthetixState, used to calculate debtBalance
 						'claims', // Total number of claims ever performed
@@ -802,7 +802,7 @@ module.exports = {
 
 		rewards({ max = 100 } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'rewardEscrowHolders',
@@ -826,7 +826,7 @@ module.exports = {
 		 */
 		total() {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				query: {
 					entity: 'synthetixes',
 					selection: {
@@ -834,22 +834,22 @@ module.exports = {
 							id: 1,
 						},
 					},
-					properties: ['issuers', 'snxHolders'],
+					properties: ['issuers', 'hznHolders'],
 				},
 				max: 1,
 			})
-				.then(([{ issuers, snxHolders }]) => ({
+				.then(([{ issuers, hznHolders }]) => ({
 					issuers: Number(issuers),
-					snxHolders: Number(snxHolders),
+					hznHolders: Number(hznHolders),
 				}))
 				.catch(err => console.error(err));
 		},
 		/**
-		 * Get the latest SNX transfers
+		 * Get the latest HZN transfers
 		 */
 		transfers({ from = undefined, to = undefined, max = 100, minBlock = undefined, maxBlock = undefined } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'transfers',
@@ -857,7 +857,7 @@ module.exports = {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
 						where: {
-							source: '\\"SNX\\"',
+							source: '\\"HZN\\"',
 							from: from ? `\\"${from}\\"` : undefined,
 							to: to ? `\\"${to}\\"` : undefined,
 							block_gte: minBlock || undefined,
@@ -882,7 +882,7 @@ module.exports = {
 		},
 		feesClaimed({ max = 100, account = undefined } = {}) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'feesClaimeds',
@@ -899,7 +899,7 @@ module.exports = {
 						'timestamp', // the timestamp when this transaction happened
 						'block', // the block in which this transaction happened
 						'value', // the claimed amount in sUSD
-						'rewards', // the rewards amount in SNX
+						'rewards', // the rewards amount in HZN
 					],
 				},
 			})
@@ -918,7 +918,7 @@ module.exports = {
 		},
 		debtSnapshot({ account = undefined, max = 100, minBlock = undefined, maxBlock = undefined }) {
 			return pageResults({
-				api: graphAPIEndpoints.snx,
+				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
 					entity: 'debtSnapshots',
@@ -936,7 +936,7 @@ module.exports = {
 						'timestamp', // the timestamp when this transaction happened
 						'block', // the block in which this transaction happened
 						'account', // the address of debt holder
-						'balanceOf', // SNX balance in their wallet,
+						'balanceOf', // HZN balance in their wallet,
 						'collateral', // Synthetix.collateral (all collateral the account has, including escrowed )'collateral', // Synthetix.collateral (all collateral the account has, including escrowed )
 						'debtBalanceOf', // Account's Debt balance in sUSD
 					],
@@ -1364,16 +1364,16 @@ module.exports = {
 							deadline_lte: roundTimestampTenSeconds(maxTime) || undefined,
 						},
 					},
-					properties: ['id', 'deadline', 'account', 'collateral', 'collateralRatio', 'liquidatableNonEscrowSNX'],
+					properties: ['id', 'deadline', 'account', 'collateral', 'collateralRatio', 'liquidatableNonEscrowHZN'],
 				},
 			}).then(results =>
-				results.map(({ id, deadline, account, collateralRatio, liquidatableNonEscrowSNX, collateral }) => ({
+				results.map(({ id, deadline, account, collateralRatio, liquidatableNonEscrowHZN, collateral }) => ({
 					id,
 					deadline: Number(deadline * 1000),
 					account,
 					collateral: collateral / 1e18,
 					collateralRatio: collateralRatio / 1e18,
-					liquidatableNonEscrowSNX: liquidatableNonEscrowSNX / 1e18,
+					liquidatableNonEscrowHZN: liquidatableNonEscrowHZN / 1e18,
 				})),
 			);
 		},
@@ -1429,17 +1429,17 @@ module.exports = {
 							time_lte: roundTimestampTenSeconds(maxTime) || undefined,
 						},
 					},
-					properties: ['id', 'time', 'account', 'liquidator', 'amountLiquidated', 'snxRedeemed'],
+					properties: ['id', 'time', 'account', 'liquidator', 'amountLiquidated', 'hznRedeemed'],
 				},
 			}).then(results =>
-				results.map(({ id, time, account, amountLiquidated, snxRedeemed, liquidator }) => ({
+				results.map(({ id, time, account, amountLiquidated, hznRedeemed, liquidator }) => ({
 					id,
 					hash: getHashFromId(id),
 					time: Number(time * 1000),
 					account,
 					liquidator,
 					amountLiquidated: amountLiquidated / 1e18,
-					snxRedeemed: snxRedeemed / 1e18,
+					hznRedeemed: hznRedeemed / 1e18,
 				})),
 			);
 		},

@@ -7,9 +7,9 @@ const moment = require('moment');
 const {
 	exchanges,
 	depot,
-	synths,
+	hassets,
 	rate,
-	snx,
+	hzn,
 	binaryOptions,
 	etherCollateral,
 	limitOrders,
@@ -196,52 +196,52 @@ program
 	});
 
 program
-	.command('synths.issuers')
+	.command('hassets.issuers')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
 	.option('-j, --json', 'Whether or not to display the results as JSON')
 
 	.action(async ({ max, json }) => {
-		synths
+		hassets
 			.issuers({ max })
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('synths.transfers')
+	.command('hassets.transfers')
 	.option('-f, --from <value>', 'A from address')
 	.option('-t, --to <value>', 'A to address')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
-	.option('-s, --synth <value>', 'Synth code')
-	.action(async ({ synth, from, to, max }) => {
-		synths
-			.transfers({ synth, from, to, max })
+	.option('-s, --hasset <value>', 'Hasset code')
+	.action(async ({ hasset, from, to, max }) => {
+		hassets
+			.transfers({ hasset, from, to, max })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('synths.holders')
+	.command('hassets.holders')
 	.option('-a, --address <value>', 'Address to filter on, if any')
-	.option('-s, --synth <value>', 'The synth currencyKey')
+	.option('-s, --hasset <value>', 'The hasset currencyKey')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
 	.option('-o, --addresses-only', 'Show addresses only')
 	.option('-j, --json', 'Whether or not to display the results as JSON')
-	.action(async ({ max, addressesOnly, address, json, synth }) => {
-		synths
-			.holders({ max, address, addressesOnly, synth })
+	.action(async ({ max, addressesOnly, address, json, hasset }) => {
+		hassets
+			.holders({ max, address, addressesOnly, hasset })
 			.then(results => (addressesOnly ? results.map(({ address }) => address) : results))
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('rate.snxAggregate')
+	.command('rate.hznAggregate')
 	.option('-t, --timeSeries <value>', 'The type of timeSeries - 1d, 15m', '1d')
 	.option('-m, --max <value>', 'Maximum number of results', 30)
 	.action(async ({ timeSeries, max }) => {
 		rate
-			.snxAggregate({ timeSeries, max })
+			.hznAggregate({ timeSeries, max })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
@@ -251,31 +251,31 @@ program
 	.option('-m, --max <value>', 'Maximum number of results', 10)
 	.option('-b, --min-block <value>', 'The smallest block to include, if any')
 	.option('-B, --max-block <value>', 'The biggest block to include, if any')
-	.option('-s, --synth <value>', 'Synth code')
+	.option('-s, --hasset <value>', 'Hasset code')
 	.option('-j, --json', 'Whether or not to display the results as JSON')
 	.option('-t, --minTimestamp <value>', 'The oldest timestamp to include, if any')
 	.option('-T, --maxTimestamp <value>', 'The youngest timestamp to include, if any')
-	.action(async ({ max, synth, minBlock, maxBlock, minTimestamp, maxTimestamp, json }) => {
+	.action(async ({ max, hasset, minBlock, maxBlock, minTimestamp, maxTimestamp, json }) => {
 		rate
-			.updates({ max, synth, minBlock, maxBlock, minTimestamp, maxTimestamp })
+			.updates({ max, hasset, minBlock, maxBlock, minTimestamp, maxTimestamp })
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
 	});
 
 program
 	.command('rate.dailyRateChange')
-	.option('-s, --synths [value...]', 'specify synths to get rate changes from')
+	.option('-s, --hassets [value...]', 'specify hassets to get rate changes from')
 	.option('-f, --fromBlock <value>', 'will get rates 24HR prior starting from this block')
-	.option('-m, --max <value>', 'max needs to be higher than total synths in the system at the moment', 100)
-	.action(async ({ synths, fromBlock }) => {
+	.option('-m, --max <value>', 'max needs to be higher than total hassets in the system at the moment', 100)
+	.action(async ({ hassets, fromBlock }) => {
 		rate
-			.dailyRateChange({ synths, fromBlock })
+			.dailyRateChange({ hassets, fromBlock })
 			.then(logResults())
 			.then(showResultCount({ max: 'n/a' }));
 	});
 
 program
-	.command('snx.holders')
+	.command('hzn.holders')
 	.option('-a, --address <value>', 'Address to filter on, if any')
 	.option('-c, --min-claims <value>', 'Minimum number of claims')
 	.option('-i, --min-mints <value>', 'Minimum number of mints')
@@ -285,7 +285,7 @@ program
 	.option('-o, --addresses-only', 'Show addresses only')
 	.option('-x, --max-collateral <value>', 'Maximum amount of collateral (input will have 18 decimals added)')
 	.action(async ({ max, addressesOnly, address, maxCollateral, minCollateral, json, minMints, minClaims }) => {
-		snx
+		hzn
 			.holders({
 				max,
 				address,
@@ -300,44 +300,44 @@ program
 			.then(showResultCount({ max }));
 	});
 
-program.command('snx.total').action(async () => {
-	snx.total().then(console.log);
+program.command('hzn.total').action(async () => {
+	hzn.total().then(console.log);
 });
 
 program
-	.command('snx.aggregateActiveStakers')
+	.command('hzn.aggregateActiveStakers')
 	.option('-m, --max <value>', 'Maximum number of results', 30)
 	.action(async ({ max }) => {
-		snx
+		hzn
 			.aggregateActiveStakers({ max })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
-program.command('snx.totalActiveStakers').action(async () => {
-	snx.totalActiveStakers().then(console.log);
+program.command('hzn.totalActiveStakers').action(async () => {
+	hzn.totalActiveStakers().then(console.log);
 });
 
 program
-	.command('snx.transfers')
+	.command('hzn.transfers')
 	.option('-f, --from <value>', 'A from address')
 	.option('-t, --to <value>', 'A to address')
 	.option(',m, --max <value>', 'Maximum number of results', 100)
 	.action(async ({ from, to, max }) => {
-		snx
+		hzn
 			.transfers({ from, to, max })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('snx.rewards')
+	.command('hzn.rewards')
 	.option('-a, --addresses-only', 'Show addresses only')
 	.option('-m, --max <value>', 'Maximum number of results', Infinity)
 	.option('-j, --json', 'Whether or not to display the results as JSON')
 
 	.action(async ({ max, json, addressesOnly }) => {
-		snx
+		hzn
 			.rewards({ max })
 			.then(results => (addressesOnly ? results.map(({ address }) => address) : results))
 			.then(logResults({ json }))
@@ -345,52 +345,52 @@ program
 	});
 
 program
-	.command('snx.burned')
+	.command('hzn.burned')
 	.option('-b, --min-block <value>', 'The smallest block to include, if any')
 	.option('-a, --account <value>', 'Account to filter on, if any')
 	.option('-m, --max <value>', 'Maximum number of results', Infinity)
 
 	.action(async ({ minBlock, max, account }) => {
-		snx
+		hzn
 			.burned({ minBlock, max, account })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('snx.issued')
+	.command('hzn.issued')
 	.option('-b, --min-block <value>', 'The smallest block to include, if any')
 	.option('-a, --account <value>', 'Account to filter on, if any')
 	.option('-m, --max <value>', 'Maximum number of results', Infinity)
 
 	.action(async ({ minBlock, max, account }) => {
-		snx
+		hzn
 			.issued({ minBlock, max, account })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('snx.feesClaimed')
+	.command('hzn.feesClaimed')
 	.option('-a, --account <value>', 'Account to filter on, if any')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
 
 	.action(async ({ max, account }) => {
-		snx
+		hzn
 			.feesClaimed({ max, account })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('snx.debtSnapshot')
+	.command('hzn.debtSnapshot')
 	.option('-m, --max <value>', 'Maximum number of results', Infinity)
 	.option('-b, --min-block <value>', 'The smallest block to include, if any')
 	.option('-B, --max-block <value>', 'The biggest block to include, if any')
 	.option('-a, --account <value>', 'Account to filter on, if any')
 
 	.action(async ({ account, max, minBlock, maxBlock }) => {
-		snx
+		hzn
 			.debtSnapshot({ account, max, minBlock, maxBlock })
 			.then(logResults())
 			.then(showResultCount({ max }));
