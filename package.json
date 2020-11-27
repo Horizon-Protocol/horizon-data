@@ -1,12 +1,12 @@
 {
-	"name": "synthetix-data",
+	"name": "@phoenix-global/horizon-data",
 	"license": "MIT",
 	"version": "2.1.39",
-	"author": "Synthetix",
+	"author": "Phoenix Global",
 	"main": "index.js",
 	"browser": "browser.js",
 	"bin": {
-		"snxData": "bin.js"
+		"hznData": "bin.js"
 	},
 	"scripts": {
 		"lint": "eslint .",
