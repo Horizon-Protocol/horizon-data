@@ -1,8 +1,8 @@
 {
-	"name": "@phoenix-global/horizon-data",
+	"name": "@horizon-protocol/horizon-data",
 	"license": "MIT",
 	"version": "2.1.40",
-	"author": "Phoenix Global",
+	"author": "Horizon Protocol",
 	"main": "index.js",
 	"browser": "browser.js",
 	"bin": {

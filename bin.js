@@ -7,7 +7,7 @@ const moment = require('moment');
 const {
 	exchanges,
 	depot,
-	hassets,
+	zassets,
 	rate,
 	hzn,
 	binaryOptions,
@@ -196,40 +196,40 @@ program
 	});
 
 program
-	.command('hassets.issuers')
+	.command('zassets.issuers')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
 	.option('-j, --json', 'Whether or not to display the results as JSON')
 
 	.action(async ({ max, json }) => {
-		hassets
+		zassets
 			.issuers({ max })
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('hassets.transfers')
+	.command('zassets.transfers')
 	.option('-f, --from <value>', 'A from address')
 	.option('-t, --to <value>', 'A to address')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
-	.option('-s, --hasset <value>', 'Hasset code')
-	.action(async ({ hasset, from, to, max }) => {
-		hassets
-			.transfers({ hasset, from, to, max })
+	.option('-s, --zasset <value>', 'Zasset code')
+	.action(async ({ zasset, from, to, max }) => {
+		zassets
+			.transfers({ zasset, from, to, max })
 			.then(logResults())
 			.then(showResultCount({ max }));
 	});
 
 program
-	.command('hassets.holders')
+	.command('zassets.holders')
 	.option('-a, --address <value>', 'Address to filter on, if any')
-	.option('-s, --hasset <value>', 'The hasset currencyKey')
+	.option('-s, --zasset <value>', 'The zasset currencyKey')
 	.option('-m, --max <value>', 'Maximum number of results', 100)
 	.option('-o, --addresses-only', 'Show addresses only')
 	.option('-j, --json', 'Whether or not to display the results as JSON')
-	.action(async ({ max, addressesOnly, address, json, hasset }) => {
-		hassets
-			.holders({ max, address, addressesOnly, hasset })
+	.action(async ({ max, addressesOnly, address, json, zasset }) => {
+		zassets
+			.holders({ max, address, addressesOnly, zasset })
 			.then(results => (addressesOnly ? results.map(({ address }) => address) : results))
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
@@ -251,25 +251,25 @@ program
 	.option('-m, --max <value>', 'Maximum number of results', 10)
 	.option('-b, --min-block <value>', 'The smallest block to include, if any')
 	.option('-B, --max-block <value>', 'The biggest block to include, if any')
-	.option('-s, --hasset <value>', 'Hasset code')
+	.option('-s, --zasset <value>', 'Zasset code')
 	.option('-j, --json', 'Whether or not to display the results as JSON')
 	.option('-t, --minTimestamp <value>', 'The oldest timestamp to include, if any')
 	.option('-T, --maxTimestamp <value>', 'The youngest timestamp to include, if any')
-	.action(async ({ max, hasset, minBlock, maxBlock, minTimestamp, maxTimestamp, json }) => {
+	.action(async ({ max, zasset, minBlock, maxBlock, minTimestamp, maxTimestamp, json }) => {
 		rate
-			.updates({ max, hasset, minBlock, maxBlock, minTimestamp, maxTimestamp })
+			.updates({ max, zasset, minBlock, maxBlock, minTimestamp, maxTimestamp })
 			.then(logResults({ json }))
 			.then(showResultCount({ max }));
 	});
 
 program
 	.command('rate.dailyRateChange')
-	.option('-s, --hassets [value...]', 'specify hassets to get rate changes from')
+	.option('-s, --zassets [value...]', 'specify zassets to get rate changes from')
 	.option('-f, --fromBlock <value>', 'will get rates 24HR prior starting from this block')
-	.option('-m, --max <value>', 'max needs to be higher than total hassets in the system at the moment', 100)
-	.action(async ({ hassets, fromBlock }) => {
+	.option('-m, --max <value>', 'max needs to be higher than total zassets in the system at the moment', 100)
+	.action(async ({ zassets, fromBlock }) => {
 		rate
-			.dailyRateChange({ hassets, fromBlock })
+			.dailyRateChange({ zassets, fromBlock })
 			.then(logResults())
 			.then(showResultCount({ max: 'n/a' }));
 	});

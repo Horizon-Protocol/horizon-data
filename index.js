@@ -161,7 +161,7 @@ module.exports = {
 			'block',
 			'timestamp',
 		],
-		_mapHassetExchange: ({
+		_mapZassetExchange: ({
 			gasPrice,
 			timestamp,
 			id,
@@ -263,7 +263,7 @@ module.exports = {
 				api: graphAPIEndpoints.exchanges,
 				max,
 				query: {
-					entity: 'hassetExchanges',
+					entity: 'zassetExchanges',
 					selection: {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
@@ -279,7 +279,7 @@ module.exports = {
 					properties: module.exports.exchanges._properties,
 				},
 			})
-				.then(results => results.map(module.exports.exchanges._mapHassetExchange))
+				.then(results => results.map(module.exports.exchanges._mapZassetExchange))
 				.catch(err => console.error(err));
 		},
 
@@ -347,7 +347,7 @@ module.exports = {
 			);
 
 			const observable = client.request({
-				query: `subscription { hassetExchanges(first: 1, orderBy: timestamp, orderDirection: desc) { ${module.exports.exchanges._properties.join(
+				query: `subscription { zassetExchanges(first: 1, orderBy: timestamp, orderDirection: desc) { ${module.exports.exchanges._properties.join(
 					',',
 				)}  } }`,
 			});
@@ -356,8 +356,8 @@ module.exports = {
 				// return an observable object that transforms the results before yielding them
 				subscribe({ next, error, complete }) {
 					return observable.subscribe({
-						next({ data: { hassetExchanges } }) {
-							hassetExchanges.map(module.exports.exchanges._mapHassetExchange).forEach(next);
+						next({ data: { zassetExchanges } }) {
+							zassetExchanges.map(module.exports.exchanges._mapZassetExchange).forEach(next);
 						},
 						error,
 						complete,
@@ -366,7 +366,7 @@ module.exports = {
 			};
 		},
 	},
-	hassets: {
+	zassets: {
 		issuers({ max = 10 } = {}) {
 			return pageResults({
 				api: graphAPIEndpoints.hzn,
@@ -380,10 +380,10 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 		/**
-		 * Get the latest hasset transfers
+		 * Get the latest zasset transfers
 		 */
 		transfers({
-			hasset = undefined,
+			zasset = undefined,
 			from = undefined,
 			to = undefined,
 			max = 100,
@@ -399,7 +399,7 @@ module.exports = {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
 						where: {
-							source: hasset ? `\\"${hasset}\\"` : undefined,
+							source: zasset ? `\\"${zasset}\\"` : undefined,
 							source_not: '\\"HZN\\"',
 							from: from ? `\\"${from}\\"` : undefined,
 							to: to ? `\\"${to}\\"` : undefined,
@@ -427,32 +427,32 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 
-		holders({ max = 100, hasset = undefined, address = undefined } = {}) {
+		holders({ max = 100, zasset = undefined, address = undefined } = {}) {
 			return pageResults({
 				api: graphAPIEndpoints.hzn,
 				max,
 				query: {
-					entity: 'hassetHolders',
+					entity: 'zassetHolders',
 					selection: {
 						orderBy: 'balanceOf',
 						orderDirection: 'desc',
 						where: {
-							id: address && hasset ? `\\"${address + '-' + hasset}\\"` : undefined,
-							hasset: hasset ? `\\"${hasset}\\"` : undefined,
+							id: address && zasset ? `\\"${address + '-' + zasset}\\"` : undefined,
+							zasset: zasset ? `\\"${zasset}\\"` : undefined,
 						},
 					},
 					properties: [
-						'id', // the address of the holder plus the hasset
-						'balanceOf', // hasset balance in their wallet
-						'hasset', // The hasset currencyKey
+						'id', // the address of the holder plus the zasset
+						'balanceOf', // zasset balance in their wallet
+						'zasset', // The zasset currencyKey
 					],
 				},
 			})
 				.then(results =>
-					results.map(({ id, balanceOf, hasset }) => ({
+					results.map(({ id, balanceOf, zasset }) => ({
 						address: getHashFromId(id),
 						balanceOf: balanceOf ? balanceOf / 1e18 : null,
-						hasset,
+						zasset,
 					})),
 				)
 				.catch(err => console.error(err));
@@ -482,29 +482,29 @@ module.exports = {
 				.catch(err => console.error(err));
 		},
 		/**
-		 * Get the last max RateUpdate events for the given hasset in reverse order
+		 * Get the last max RateUpdate events for the given zasset in reverse order
 		 */
 		updates({
-			hasset,
+			zasset,
 			minBlock = undefined,
 			maxBlock = undefined,
 			minTimestamp = undefined,
 			maxTimestamp = undefined,
 			max = 100,
 		} = {}) {
-			let hassetSelectionQuery = {};
+			let zassetSelectionQuery = {};
 
-			if (Array.isArray(hasset)) {
-				hassetSelectionQuery = {
-					hasset_in: formatGQLArray(hasset),
+			if (Array.isArray(zasset)) {
+				zassetSelectionQuery = {
+					zasset_in: formatGQLArray(zasset),
 				};
-			} else if (hasset) {
-				hassetSelectionQuery = {
-					hasset: formatGQLString(hasset),
+			} else if (zasset) {
+				zassetSelectionQuery = {
+					zasset: formatGQLString(zasset),
 				};
 			} else {
-				hassetSelectionQuery = {
-					hasset_not_in: formatGQLArray(['HZN', 'ETH', 'XDR']),
+				zassetSelectionQuery = {
+					zasset_not_in: formatGQLArray(['HZN', 'ETH', 'XDR']),
 				};
 			}
 
@@ -517,20 +517,20 @@ module.exports = {
 						orderBy: 'timestamp',
 						orderDirection: 'desc',
 						where: {
-							...hassetSelectionQuery,
+							...zassetSelectionQuery,
 							block_gte: minBlock || undefined,
 							block_lte: maxBlock || undefined,
 							timestamp_gte: roundTimestampTenSeconds(minTimestamp) || undefined,
 							timestamp_lte: roundTimestampTenSeconds(maxTimestamp) || undefined,
 						},
 					},
-					properties: ['id', 'hasset', 'rate', 'block', 'timestamp'],
+					properties: ['id', 'zasset', 'rate', 'block', 'timestamp'],
 				},
 			})
 				.then(results =>
-					results.map(({ id, rate, block, timestamp, hasset }) => ({
+					results.map(({ id, rate, block, timestamp, zasset }) => ({
 						block: Number(block),
-						hasset,
+						zasset,
 						timestamp: Number(timestamp * 1000),
 						date: new Date(timestamp * 1000),
 						hash: getHashFromId(id),
@@ -539,8 +539,8 @@ module.exports = {
 				)
 				.catch(err => console.error(err));
 		},
-		dailyRateChange({ hassets = [], max = 100, fromBlock }) {
-			const IGNORE_HASSETS = ['XDR', 'XDRB', 'nUSD', 'sUSD'];
+		dailyRateChange({ zassets = [], max = 100, fromBlock }) {
+			const IGNORE_ZASSETS = ['XDR', 'XDRB', 'nUSD', 'zUSD'];
 			return pageResults({
 				api: graphAPIEndpoints.rates,
 				max,
@@ -557,8 +557,8 @@ module.exports = {
 				.then(latestRates => {
 					const changeValues = latestRates.reduce((acc, curr) => {
 						if (
-							!IGNORE_HASSETS.includes(curr.id) &&
-							(hassets.length === 0 || (hassets.length > 0 && hassets.includes(curr.id)))
+							!IGNORE_ZASSETS.includes(curr.id) &&
+							(zassets.length === 0 || (zassets.length > 0 && zassets.includes(curr.id)))
 						) {
 							acc[curr.id] = {
 								currentRate: curr.rate,
@@ -608,7 +608,7 @@ module.exports = {
 			const observable = client.request({
 				query: `subscription { rateUpdates(where: { timestamp_gt: ${minTimestamp}}, orderBy: timestamp, orderDirection: desc) { ${[
 					'id',
-					'hasset',
+					'zasset',
 					'rate',
 					'block',
 					'timestamp',
@@ -649,7 +649,7 @@ module.exports = {
 						'account', // the address of the burner
 						'timestamp', // the timestamp when this transaction happened
 						'block', // the block in which this transaction happened
-						'value', // the issued amount in sUSD
+						'value', // the issued amount in zUSD
 					],
 				},
 			})
@@ -685,7 +685,7 @@ module.exports = {
 						'account', // the address of the burner
 						'timestamp', // the timestamp when this transaction happened
 						'block', // the block in which this transaction happened
-						'value', // the burned amount in sUSD
+						'value', // the burned amount in zUSD
 					],
 				},
 			})
@@ -764,7 +764,7 @@ module.exports = {
 						'initialDebtOwnership', // Debt data from SynthetixState, used to calculate debtBalance
 						'debtEntryAtIndex', // Debt data from SynthetixState, used to calculate debtBalance
 						'claims', // Total number of claims ever performed
-						'mints', // Total number of mints ever performed (issuance of sUSD)
+						'mints', // Total number of mints ever performed (issuance of zUSD)
 					],
 				},
 			})
@@ -898,7 +898,7 @@ module.exports = {
 						'account', // the address of the claimer
 						'timestamp', // the timestamp when this transaction happened
 						'block', // the block in which this transaction happened
-						'value', // the claimed amount in sUSD
+						'value', // the claimed amount in zUSD
 						'rewards', // the rewards amount in HZN
 					],
 				},
@@ -938,7 +938,7 @@ module.exports = {
 						'account', // the address of debt holder
 						'balanceOf', // HZN balance in their wallet,
 						'collateral', // Synthetix.collateral (all collateral the account has, including escrowed )'collateral', // Synthetix.collateral (all collateral the account has, including escrowed )
-						'debtBalanceOf', // Account's Debt balance in sUSD
+						'debtBalanceOf', // Account's Debt balance in zUSD
 					],
 				},
 			})

@@ -4,30 +4,30 @@
 [![Discord](https://img.shields.io/discord/413890591840272394.svg?color=768AD4&label=discord&logo=https%3A%2F%2Fdiscordapp.com%2Fassets%2F8c9701b98ad4372b58f13fd9f65f966e.svg)](https://discordapp.com/channels/413890591840272394/)
 [![Twitter Follow](https://img.shields.io/twitter/follow/synthetix_io.svg?label=synthetix_io&style=social)](https://twitter.com/synthetix_io)
 
-This is a collection of utilities to query Horizon data from Ethereum. This data has been indexed by The Graph via the various subgraphs the Horizon team maintains ([the subgraph code repo](https://github.com/PhoenixGlobal/horizon-subgraph)).
+This is a collection of utilities to query Horizon data from Ethereum. This data has been indexed by The Graph via the various subgraphs the Horizon team maintains ([the subgraph code repo](https://github.com/Horizon-Protocol/horizon-subgraph)).
 
 ## Supported queries
 
 The below all return a Promise that resolves with the requested results.
 
-1. `depot.userActions({ user })` Get all depot deposit (`sUSD`) actions for the given user - `deposit`, `withdrawl`, `unaccepted`, `removed`.
-2. `depot.clearedDeposits({ fromAddress, toAddress })` Get all cleared hasset deposits (payments of `ETH` for `sUSD`) either from a given `fromAddress` or (and as well as) to a given `toAddress`
-3. `depot.exchanges({ from })` Get all depot exchanges (buying sUSD with ETH) for a given `from` address.
+1. `depot.userActions({ user })` Get all depot deposit (`zUSD`) actions for the given user - `deposit`, `withdrawl`, `unaccepted`, `removed`.
+2. `depot.clearedDeposits({ fromAddress, toAddress })` Get all cleared zasset deposits (payments of `ETH` for `zUSD`) either from a given `fromAddress` or (and as well as) to a given `toAddress`
+3. `depot.exchanges({ from })` Get all depot exchanges (buying zUSD with ETH) for a given `from` address.
 4. `exchanges.total()` Get the total exchange volume, total fees and total number of unique exchange addresses.
 5. `exchanges.rebates({ minTimestamp = 1 day ago })` Get the last `N` exchange rebates since the given `minTimestamp` in seconds. Ordered in reverse chronological order.
 6. `exchanges.reclaims({ minTimestamp = 1 day ago })` Get the last `N` exchange reclaims since the given `minTimestamp` in seconds. Ordered in reverse chronological order.
 7. `exchanges.since({ minTimestamp = 1 day ago })` Get the last `N` exchanges since the given `minTimestamp` (in seconds, so one hour ago is `3600`). These are ordered in reverse chronological order.
-8. `rate.updates` Get all rate updates for hassets in reverse chronological order
-9. `hassets.issuers` Get all wallets that have invoked `Issue` on `sUSD` (other hassets to come)
-10. `hassets.transfers` Get hasset transfers in reverse chronological order
-11. `hassets.holders` Get all potential hasset holders
+8. `rate.updates` Get all rate updates for zassets in reverse chronological order
+9. `zassets.issuers` Get all wallets that have invoked `Issue` on `zUSD` (other zassets to come)
+10. `zassets.transfers` Get zasset transfers in reverse chronological order
+11. `zassets.holders` Get all potential zasset holders
 12. `hzn.holders` Get the list of wallets that have ever sent or received `HZN`.
 13. `hzn.rewards` Get the list of reward escrow holders and their latest balance at vesting entry add or vest.
 14. `hzn.total` Get the total count of unique `issuers` and `hznHolders`
 15. `hzn.transfers` Get HZN transfers in reverse chronological order
 16. `hzn.issued` Get the `Issued` events in reverse chronological order.
 17. `hzn.burned` Get the `Burned` events in reverse chronological order.
-18. `hzn.feesClaimed` Get the `FeesClaimed` events in reverse chronological order, showing fees in sUSD and rewards in hzn.
+18. `hzn.feesClaimed` Get the `FeesClaimed` events in reverse chronological order, showing fees in zUSD and rewards in hzn.
 19. `hzn.debtSnapshot` Get the historical debt balance for any wallet address.
 20. `binaryOptions.markets` Get all the binary options markets created.
 21. `binaryOptions.optionTransactions` Get all the Bid and Refund transactions made to the binary options markets.
@@ -38,7 +38,7 @@ The below all return a Promise that resolves with the requested results.
 26. `rate.hznAggregate({ max, timeSeries })` Get the price of hzn aggregated across various time series.
 27. `hzn.aggregateActiveStakers({ max, timeSeries })` Get the number of active stakers across various time series.
 28. `hzn.totalActiveStakers()` Get the current number of active stakers.
-29. `rate.dailyRateChange({ hassets })` get the rate change over the past 24 hours for any hasset. Can pass in a list to retrieve multiple hassets.
+29. `rate.dailyRateChange({ zassets })` get the rate change over the past 24 hours for any zasset. Can pass in a list to retrieve multiple zassets.
 30. `hzn.accountsRemovedFromLiquidation({ maxTime, minTime, account, max })` finds all the accounts that have fixed their c-ratio to avoid being at risk of liquidation after being flagged.
 31. `hzn.accountsFlaggedForLiquidation({ minTime, maxTime, account, max })` finds all the accounts that have been flagged for liquidation.
 32. `hzn.accountsLiquidated({ maxTime, minTime, account, max })` finds all the accounts that have been liquidated after being flagged for liquidation.
