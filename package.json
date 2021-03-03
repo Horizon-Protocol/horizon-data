@@ -1,7 +1,7 @@
 {
 	"name": "@horizon-protocol/horizon-data",
 	"license": "MIT",
-	"version": "2.1.40",
+	"version": "2.1.41",
 	"author": "Horizon Protocol",
 	"main": "index.js",
 	"browser": "browser.js",
